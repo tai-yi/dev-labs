@@ -87,4 +87,4 @@ public void Configure(IApplicationBuilder app, IHostApplicationLifetime lifetime
 }
 ```
 
-高性能日志 [next](session4.md)
+理解Controller [next->](session4.md)

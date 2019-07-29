@@ -1,116 +1,83 @@
-# 高性能日志
+# Controller
 
-## 使用 [LoggerMessage](https://github.com/aspnet/Extensions/blob/55518d79834d3319c91f40b449d028338b129ed6/src/Logging/Logging.Abstractions/src/LoggerMessage.cs#L100)
-
-下面我们来做一个有趣的实验
-
-1. 创建ConsoleApp
-
-2. 编辑csprojfile,添加以下Nuget Package 
-
-    ``` xml
-    <!--请注意调整版本-->
-    <ItemGroup>
-        <PackageReference Include="BenchmarkDotNet" Version="0.11.5" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.2.0" />
-    </ItemGroup>
-    ```
-
-3. 修改 `Program.cs`
-    ```
-    public static void Main(string[] args) => BenchmarkRunner.Run<LogBenchMarkEntry>();
-    ```
-4. 添加文件 `MyService`
-    ```C#
-    public class MyService
+代码
+``` C#
+[ApiController]
+[Route("[controller]")]
+public class WeatherForecastController : ControllerBase
+{
+    private static readonly string[] Summaries = new[]
     {
-        private readonly ILogger _logger;
+        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+    };
 
-        public MyService(ILogger<MyService> logger)
-        {
-            _logger = logger;
-        }
+    private readonly ILogger<WeatherForecastController> _logger;
 
-        public void RunWithNormalLog(MyServiceModel model)
-        {
-            _logger.LogInformation("Run model kind '{kind}' count '{count}'", model.Kind, model.Count);
-        }
-
-        public void RunWithOptLog(MyServiceModel model)
-        {
-            _logger.MyServiceRun(model);
-        }
+    public WeatherForecastController(ILogger<WeatherForecastController> logger)
+    {
+        _logger = logger;
     }
 
-    public class MyServiceModel
+    [HttpGet]
+    public IEnumerable<WeatherForecast> Get()
     {
-        public string Kind { get; set; }
-
-        public int Count { get; set; }
+        var rng = new Random();
+        return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+        {
+            Date = DateTime.Now.AddDays(index),
+            TemperatureC = rng.Next(-20, 55),
+            Summary = Summaries[rng.Next(Summaries.Length)]
+        })
+        .ToArray();
     }
+}
+```
 
-    internal static class LogExtensions
+### ApiController
+
+ModelBing 默认不支持form的ContentType，只支持route，queryString
+
+在进入action之前有model validation，如验证不过返回http 400
+
+### Route("[controller]")
+
+路由模板，也就是endpoint
+
+### 设计API原则
+
+* 版本化
+* API Model ≠ TableRow
+* 请勿在额外包装一层状态码
+    ``` json
     {
-        private static readonly Action<ILogger, string, int, Exception> _myServiceRun;
-
-        static LogExtensions()
-        {
-            _myServiceRun = LoggerMessage.Define<string, int>(
-                LogLevel.Information,
-                new EventId(0, nameof(MyServiceRun)),
-                "Run model kind '{kind}' count '{count}'");
-        }
-
-        public static void MyServiceRun(this ILogger logger, MyServiceModel model)
-        {
-            _myServiceRun(logger, model.Kind, model.Count, null);
+        "code":200,
+        "data":{
+            //...
         }
     }
     ```
 
-5. 添加`LogBenchMarkEntry`
+    这样做的坏处
 
-    ```C#
-    public class LogBenchMarkEntry
-    {
-        public LogBenchMarkEntry()
-        {
-            var services = new ServiceCollection()
-            //如果console输出会影响benchmark runner
-                .AddLogging()
-                .AddTransient<MyService>()
-                .BuildServiceProvider();
-            _service = services.GetRequiredService<MyService>();
-            _data = new MyServiceModel()
-            {
-                Count = 100,
-                Kind = "kind1"
-            };
+    1. 对消费方特别不友好
+    2. 对重试特别糟糕
+    3. 丑陋的code逻辑
+    4. Gateway的健康检查不支持
+    5. 网络级别的通用service mash无法支持 (k8s)
 
-        }
+常规来讲一种资源应具有以下API
+* post
 
-        private readonly MyServiceModel _data;
-        private readonly MyService _service;
-        
-        [Benchmark]
-        public void RunWithNormalLog()
-        {
-            _service.RunWithNormalLog(_data);
-        }
+    创建
+* put
 
-        [Benchmark]
-        public void RunWithOptLog()
-        {
-            _service.RunWithOptLog(_data);
-        }
-    }
-    ```
+    修改
+* delete
 
-6. 编译运行
+    删除
+* patch
 
-    `dotnet run -c release`
+    部分修改
+* get
 
-    很快就看到很有意思的对比结果
-
-Ref: https://docs.microsoft.com/zh-cn/aspnet/core/fundamentals/logging/loggermessage?view=aspnetcore-3.0
+    读取
