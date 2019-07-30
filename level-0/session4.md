@@ -65,6 +65,8 @@ ModelBing 默认不支持form的ContentType，只支持route，queryString
     4. Gateway的健康检查不支持
     5. 网络级别的通用service mash无法支持 (k8s)
 
+
+
 常规来讲一种资源应具有以下API
 * post
 
@@ -81,3 +83,8 @@ ModelBing 默认不支持form的ContentType，只支持route，queryString
 * get
 
     读取
+
+相关链接
+
+* https://blog.igevin.info/posts/restful-architecture-in-general/
+* https://github.com/microsoft/api-guidelines
