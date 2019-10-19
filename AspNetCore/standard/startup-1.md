@@ -158,5 +158,3 @@ ConfigureWebHostDefaults(webBuilder =>
     webBuilder.UseStartup<Startup>();
 })
 ```
-
-Starup [next->](session3.md)
