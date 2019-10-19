@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework> <!--默认是.netstandard , 按需修改-->
+    <RazorCompileOnBuild>true</RazorCompileOnBuild>
+    <!-- 可以自定义Razor输出程序集名称，默认: xxxx.Views.dll -->
+    <!--<RazorTargetName>xxx.Cust.Views</RazorTargetName>-->
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>    
+  </PropertyGroup>  
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App"/>    
+  </ItemGroup>
+</Project>

@@ -86,5 +86,3 @@ public void Configure(IApplicationBuilder app, IHostApplicationLifetime lifetime
     });
 }
 ```
-
-理解Controller [next->](session4.md)

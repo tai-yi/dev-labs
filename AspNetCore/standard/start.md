@@ -64,5 +64,3 @@
 * VisualStudio
 
     按下 F5
-
-理解代码 [next->](session2.md)
