@@ -28,4 +28,4 @@
 
 ### Razor
 
-[Razor 模板](AspNetCore/Razor/readme.md)
+[Razor 模板](AspNetCore/Razor)
