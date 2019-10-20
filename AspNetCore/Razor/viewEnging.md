@@ -22,7 +22,7 @@ IActionResultExecutor<ViewResult>
 ViewExecutor.ExecuteAsync //写入到Http Response
 ```
 
-#### 试图引擎查找IView原理
+#### 视图引擎查找IView原理
 
 `ICompositeViewEngine` 里可以允许有多个 `IViewEngine` //运行时编译 与 Publish编译
 
