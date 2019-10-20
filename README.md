@@ -34,4 +34,4 @@
 
 ### Razor
 
-[Razor 模板](AspNetCore/Razor)
+[Razor](AspNetCore/Razor)
